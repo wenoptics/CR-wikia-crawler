@@ -4,8 +4,11 @@ import lxml.html
 from lxml import etree
 from base import get_html_string
 
+URL_prefix = 'http://clashroyale.wikia.com'
 
 def htmlProcessor_cards(html):
+
+    retList = []
 
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(html), parser)
@@ -16,12 +19,25 @@ def htmlProcessor_cards(html):
     links = cardTable[0].xpath('.//a')
     print("count:", len(links))
     for oneLink in links:
-        print("%s: %s" % (oneLink.text, oneLink.attrib.get('href')))
 
+        cardName = oneLink.text
+        cardURLShort = oneLink.attrib.get('href')
+
+        #print("%s: %s" % (cardName, cardURLShort))
+
+        retList.append(
+            [
+                cardName,
+                URL_prefix + cardURLShort
+            ]
+        )
+
+    return retList
 
 if __name__ == '__main__':
 
     url = 'http://clashroyale.wikia.com/wiki/Basics_of_Battle'
     html = get_html_string(url)
     html = html.decode("utf8")
-    htmlProcessor_cards(html)
+    list = htmlProcessor_cards(html)
+    print(list)
