@@ -52,7 +52,7 @@ def htmlProcessor_cardInfo(html):
     varCardData['Name'] = cardName
 
     # fetch the image
-    cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/div[@class="center"]/div[@class="floatnone"]/img')
+    cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]//div[@class="center"]/div[@class="floatnone"]/img')
     cardImageURL = cardImageURL[0].attrib.get('src')
     print("Image URL:", cardImageURL)
     varCardData['ImageURL'] = cardImageURL
@@ -115,6 +115,7 @@ def getOneCard(URL):
 if __name__ == '__main__':
     url = 'http://clashroyale.wikia.com/wiki/Goblin_Barrel'
     #url = 'http://clashroyale.wikia.com/wiki/Mirror'
+    url = 'http://clashroyale.wikia.com/wiki/Lava_Hound'
     html = get_html_string(url)
     html = html.decode("utf8")
     htmlProcessor_cardInfo(html)
