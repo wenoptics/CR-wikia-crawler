@@ -2,6 +2,7 @@ from io import StringIO
 import lxml.html
 from lxml import etree
 from base import get_html_string
+from datetime import datetime
 
 '''
 
@@ -16,6 +17,14 @@ from base import get_html_string
 
 '''
 
+varCardData = {
+    'Name': '',
+    'Elixir': '',
+    'Type': '',
+    'Rarity': '',
+    'ImageURL': '',
+    'Update': ''
+}
 
 def htmlProcessor_wikiHistory(html):
     parser = etree.HTMLParser()
@@ -24,8 +33,13 @@ def htmlProcessor_wikiHistory(html):
     # fetch revisionTime
     revisionTime = tree.getroot().xpath('//*[@id="pagehistory"]/li[1]/a')
     revisionTime = revisionTime[0].text
-    print("updateTime: %s" % revisionTime)
+    #print("updateTime: %s" % revisionTime)
 
+    date_object = datetime.strptime(revisionTime, '%H:%M, %B %d, %Y')
+    print("updateTime", date_object)
+    print('')
+
+    varCardData['Update'] = date_object
 
 def htmlProcessor_cardInfo(html):
     parser = etree.HTMLParser()
@@ -35,11 +49,13 @@ def htmlProcessor_cardInfo(html):
     cardName = tree.getroot().xpath('//*[@id="WikiaPageHeader"]/div[1]/div[1]/h1')
     cardName = cardName[0].text
     print("Card: %s" % cardName)
+    varCardData['Name'] = cardName
 
     # fetch the image
     cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/div[@class="center"]/div[@class="floatnone"]/img')
     cardImageURL = cardImageURL[0].attrib.get('src')
     print("Image URL:", cardImageURL)
+    varCardData['ImageURL'] = cardImageURL
 
     # data from attrib table
     tblCount = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[1]/th')
@@ -63,13 +79,42 @@ def htmlProcessor_cardInfo(html):
         # print(" %d , %s, %s" % (i, tblTitle, tblContent))
         varAttrTbl[tblTitle.strip()] = tblContent.strip()
 
-    print("Rarity: %s" % varAttrTbl.get('Rarity'))
-    print("Type: %s" % varAttrTbl.get('Type'))
-    print("Elixir Cost: %s" % varAttrTbl.get('Cost'))
+    _r = varAttrTbl.get('Rarity')
+    _t = varAttrTbl.get('Type')
+    _e = varAttrTbl.get('Cost')
+    try:
+        _e = int(_e)
+    except ValueError:
+        _e = '?'
+
+    print("Rarity:", _r)
+    print("Type:" , _t)
+    print("Elixir Cost:" , _e)
+    varCardData['Type']   = _t
+    varCardData['Elixir'] = _e
+    varCardData['Rarity'] = _r
+
+
+def getOneCard(URL):
+    varCardData = {}
+
+    url = URL
+    html = get_html_string(url)
+    html = html.decode("utf8")
+    htmlProcessor_cardInfo(html)
+
+    url += '?action=history'
+    html = get_html_string(url)
+    html = html.decode("utf8")
+    htmlProcessor_wikiHistory(html)
+
+    return varCardData
+
 
 
 if __name__ == '__main__':
     url = 'http://clashroyale.wikia.com/wiki/Goblin_Barrel'
+    #url = 'http://clashroyale.wikia.com/wiki/Mirror'
     html = get_html_string(url)
     html = html.decode("utf8")
     htmlProcessor_cardInfo(html)

@@ -34,8 +34,14 @@ def htmlProcessor_cards(html):
 
     return retList
 
-if __name__ == '__main__':
+def getCardURL():
+    url = 'http://clashroyale.wikia.com/wiki/Basics_of_Battle'
+    html = get_html_string(url)
+    html = html.decode("utf8")
+    return htmlProcessor_cards(html)
 
+
+if __name__ == '__main__':
     url = 'http://clashroyale.wikia.com/wiki/Basics_of_Battle'
     html = get_html_string(url)
     html = html.decode("utf8")
