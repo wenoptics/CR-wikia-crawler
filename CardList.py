@@ -13,11 +13,12 @@ def htmlProcessor_cards(html):
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(html), parser)
 
-    cardTable = tree.getroot().xpath('//*[@id="mw-content-text"]/table/tr[2]/td/table[1]')
+    cardTable = tree.getroot().xpath('//*[@id="mw-content-text"]/center[1]/div')
     #print(cardTable)
 
     links = cardTable[0].xpath('.//a')
-    print("count:", len(links))
+    print("Num of links in the card table:", len(links))
+
     for oneLink in links:
 
         cardName = oneLink.text
@@ -35,14 +36,14 @@ def htmlProcessor_cards(html):
     return retList
 
 def getCardURL():
-    url = 'http://clashroyale.wikia.com/wiki/Basics_of_Battle'
+    url = 'http://clashroyale.wikia.com/wiki/Cards'
     html = get_html_string(url)
     html = html.decode("utf8")
     return htmlProcessor_cards(html)
 
 
 if __name__ == '__main__':
-    url = 'http://clashroyale.wikia.com/wiki/Basics_of_Battle'
+    url = 'http://clashroyale.wikia.com/wiki/Cards'
     html = get_html_string(url)
     html = html.decode("utf8")
     list = htmlProcessor_cards(html)

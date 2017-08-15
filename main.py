@@ -4,6 +4,7 @@ from SingleCard import SingleCard
 db = []
 
 # TODO use pydblite
+# TODO use threading
 
 def writeCSV():
     f = open('save.csv', 'w')
@@ -32,3 +33,4 @@ for oneCard in cards:
     #print(cardInfo)
 
 writeCSV()
+print('done')

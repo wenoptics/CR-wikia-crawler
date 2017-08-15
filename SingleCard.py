@@ -1,4 +1,5 @@
 from io import StringIO
+
 import lxml.html
 from lxml import etree
 from base import get_html_string
@@ -50,31 +51,40 @@ class SingleCard:
         tree = etree.parse(StringIO(html), parser)
 
         # fetch card name
-        cardName = tree.getroot().xpath('//*[@id="WikiaPageHeader"]/div[1]/div[1]/h1')
+        cardName = tree.getroot().xpath('//*[@id="PageHeader"]/div[1]/h1')
         cardName = cardName[0].text
         print("Card: %s" % cardName)
         self.varCardData['Name'] = cardName
 
         # fetch the image
-        cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]//div[@class="center"]/div[@class="floatnone"]/img')
+        # todo How to deal with these many patterns in a smarter way?
+        cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span[2]/div/div/img')
+        if len(cardImageURL)==0:
+            cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span/span/div/div/img')
+        if len(cardImageURL)==0:
+            cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span/div/div/img')
+
         cardImageURL = cardImageURL[0].attrib.get('src')
         print("Image URL:", cardImageURL)
         self.varCardData['ImageURL'] = cardImageURL
 
         # data from attrib table
-        tblCount = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[1]/th')
-        tblCount = len(tblCount)
-        print('count of attribute table:', tblCount)
+        # Noted that there's no `tbody` label when using python to fetch the web page (dunno why)
+        #   just simply delete the `\tbody`s if you are pasting the XPath from Chrome
+        _1stTbl = tree.getroot().xpath('//*[@id="unit-statistics"]/table[1]')
+        if len(_1stTbl)==0:
+            _1stTbl = tree.getroot().xpath('//div[@class="table-back"]/table[@id="unit-attributes-table"]')
+        _1stTbl = _1stTbl[0]
+        tblHead = _1stTbl.xpath("./tr[1]/th")
+        print('count of the 1st attribute table:', len(tblHead))
 
         varAttrTbl = {}
-        for c in range(tblCount):
-            i = c+1
-            tblTitle = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[1]/th[%d]' % i)
-            tblContent = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[2]/td[%d]' % i)
-            tblContent2 = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[2]/td[%d]/a' % i)
-            tblContent3 = tree.getroot().xpath('//table[@id="unit-attributes-table"]/tr[2]/td[%d]/a/span' % i)
+        for ind, oneHead in enumerate(tblHead):
+            tblTitle = oneHead.text
+            tblContent  = _1stTbl.xpath('./tr[2]/td[%d]' % (ind+1))
+            tblContent2 = _1stTbl.xpath('./tr[2]/td[%d]/a' % (ind+1))
+            tblContent3 = _1stTbl.xpath('./tr[2]/td[%d]/a/span' % (ind+1))
 
-            tblTitle = tblTitle[0].text
             tblContent = tblContent[0].text
             if tblContent2:
                 tblContent = tblContent2[0].text

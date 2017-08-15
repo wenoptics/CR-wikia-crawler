@@ -1,5 +1,6 @@
 # CR-wikia-crawler
 crawler data from Clash Royale Wikia
+use Python 3
 
 # An Example Output:
 
