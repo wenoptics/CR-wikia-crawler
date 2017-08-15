@@ -20,8 +20,8 @@ from utils.util import get_if_ok
 
 '''
 
-class SingleCard:
 
+class SingleCard:
     def __init__(self):
 
         self.varCardData = {
@@ -40,7 +40,7 @@ class SingleCard:
         # fetch revisionTime
         revisionTime = tree.getroot().xpath('//*[@id="pagehistory"]/li[1]/a')
         revisionTime = revisionTime[0].text
-        #print("updateTime: %s" % revisionTime)
+        # print("updateTime: %s" % revisionTime)
 
         date_object = datetime.strptime(revisionTime, '%H:%M, %B %d, %Y')
         print("updateTime", date_object)
@@ -86,9 +86,9 @@ class SingleCard:
         varAttrTbl = {}
         for ind, oneHead in enumerate(tblHead):
             tblTitle = oneHead.text
-            tblContent  = _1stTbl.xpath('./tr[2]/td[%d]' % (ind+1))
-            tblContent2 = _1stTbl.xpath('./tr[2]/td[%d]/a' % (ind+1))
-            tblContent3 = _1stTbl.xpath('./tr[2]/td[%d]/a/span' % (ind+1))
+            tblContent = _1stTbl.xpath('./tr[2]/td[%d]' % (ind + 1))
+            tblContent2 = _1stTbl.xpath('./tr[2]/td[%d]/a' % (ind + 1))
+            tblContent3 = _1stTbl.xpath('./tr[2]/td[%d]/a/span' % (ind + 1))
 
             tblContent = tblContent[0].text
             if tblContent2:
@@ -107,14 +107,13 @@ class SingleCard:
             _e = '?'
 
         print("Rarity:", _r)
-        print("Type:" , _t)
-        print("Elixir Cost:" , _e)
-        self.varCardData['Type']   = _t
+        print("Type:", _t)
+        print("Elixir Cost:", _e)
+        self.varCardData['Type'] = _t
         self.varCardData['Elixir'] = _e
         self.varCardData['Rarity'] = _r
 
-
-    def fetchFromWikia(self, URL):
+    def fetch_from_wikia(self, URL):
 
         url = URL
         html = get_html_string(url)
@@ -129,14 +128,12 @@ class SingleCard:
         return self.varCardData
 
 
-
 if __name__ == '__main__':
     url = 'http://clashroyale.wikia.com/wiki/Goblin_Barrel'
-    #url = 'http://clashroyale.wikia.com/wiki/Mirror'
+    # url = 'http://clashroyale.wikia.com/wiki/Mirror'
     url = 'http://clashroyale.wikia.com/wiki/Lava_Hound'
 
     sc = SingleCard()
-    data = sc.fetchFromWikia(url)
+    data = sc.fetch_from_wikia(url)
 
     print(data)
-

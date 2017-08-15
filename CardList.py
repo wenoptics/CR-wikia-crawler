@@ -6,45 +6,46 @@ from base import get_html_string
 
 URL_prefix = 'http://clashroyale.wikia.com'
 
-def htmlProcessor_cards(html):
 
+def __htmlProcessor_cardList(html):
     retList = []
 
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(html), parser)
 
-    cardTable = tree.getroot().xpath('//*[@id="mw-content-text"]/center[1]/div')
-    #print(cardTable)
+    cardTableTr = tree.getroot().xpath('//*[@id="mw-content-text"]/table/tr[2]/td/table[1]/tr')
+    # print(cardTable)
 
-    links = cardTable[0].xpath('.//a')
-    print("Num of links in the card table:", len(links))
+    for ind, _tr in enumerate(cardTableTr):
+        if ind <= 1:
+            continue
+        links = _tr.xpath('.//a')
+        print("Num of links in the card table row:", len(links))
 
-    for oneLink in links:
-
-        cardName = oneLink.text
-        cardURLShort = oneLink.attrib.get('href')
-
-        #print("%s: %s" % (cardName, cardURLShort))
-
-        retList.append(
-            [
-                cardName,
-                URL_prefix + cardURLShort
-            ]
-        )
+        for oneLink in links:
+            cardName = oneLink.text
+            cardURLShort = oneLink.attrib.get('href')
+            # print("%s: %s" % (cardName, cardURLShort))
+            retList.append(
+                [
+                    cardName,
+                    URL_prefix + cardURLShort
+                ]
+            )
 
     return retList
 
-def getCardURL():
+
+def get_all_cards():
     url = 'http://clashroyale.wikia.com/wiki/Cards'
     html = get_html_string(url)
     html = html.decode("utf8")
-    return htmlProcessor_cards(html)
+    return __htmlProcessor_cardList(html)
 
 
 if __name__ == '__main__':
     url = 'http://clashroyale.wikia.com/wiki/Cards'
     html = get_html_string(url)
     html = html.decode("utf8")
-    list = htmlProcessor_cards(html)
+    list = __htmlProcessor_cardList(html)
     print(list)
