@@ -5,6 +5,8 @@ from lxml import etree
 from base import get_html_string
 from datetime import datetime
 
+from utils.util import get_if_ok
+
 '''
 
  fields that need to be fetch
@@ -57,13 +59,13 @@ class SingleCard:
         self.varCardData['Name'] = cardName
 
         # fetch the image
-        # todo How to deal with these many patterns in a smarter way?
-        cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span[2]/div/div/img')
-        if len(cardImageURL)==0:
-            cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span/span/div/div/img')
-        if len(cardImageURL)==0:
-            cardImageURL = tree.getroot().xpath('//*[@id="mw-content-text"]/span/div/div/img')
-
+        cardImageURL = get_if_ok(
+            [
+                '//*[@id="mw-content-text"]/span[2]/div/div/img',
+                '//*[@id="mw-content-text"]/span/span/div/div/img',
+                '//*[@id="mw-content-text"]/span/div/div/img'
+            ], tree.getroot(), lambda ele: len(ele) > 0
+        )
         cardImageURL = cardImageURL[0].attrib.get('src')
         print("Image URL:", cardImageURL)
         self.varCardData['ImageURL'] = cardImageURL
@@ -71,9 +73,12 @@ class SingleCard:
         # data from attrib table
         # Noted that there's no `tbody` label when using python to fetch the web page (dunno why)
         #   just simply delete the `\tbody`s if you are pasting the XPath from Chrome
-        _1stTbl = tree.getroot().xpath('//*[@id="unit-statistics"]/table[1]')
-        if len(_1stTbl)==0:
-            _1stTbl = tree.getroot().xpath('//div[@class="table-back"]/table[@id="unit-attributes-table"]')
+        _1stTbl = get_if_ok(
+            [
+                '//*[@id="unit-statistics"]/table[1]',
+                '//div[@class="table-back"]/table[@id="unit-attributes-table"]'
+            ], tree.getroot(), lambda ele: len(ele) > 0
+        )
         _1stTbl = _1stTbl[0]
         tblHead = _1stTbl.xpath("./tr[1]/th")
         print('count of the 1st attribute table:', len(tblHead))
